@@ -1,0 +1,38 @@
+<powershell>
+write-output "Running User Data Script"
+write-host "(host) Running User Data Script"
+
+write-output "Setting up WinRM"
+write-host "(host) Setting up WinRM"
+
+winrm quickconfig -q
+winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="300"}'
+winrm set winrm/config '@{MaxTimeoutms="1800000"}'
+winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+winrm set winrm/config/client/auth '@{Basic="true"}'
+winrm set winrm/config/service/auth '@{Basic="true"}'
+
+write-output "Opening Ports 5985 and 5986 in firewall for WinRM"
+write-host "(host) Opening Ports 5985 and 5986 in firewall for WinRM"
+
+netsh advfirewall firewall add rule name="WinRM 5985" protocol=TCP dir=in localport=5985 action=allow
+netsh advfirewall firewall add rule name="WinRM 5986" protocol=TCP dir=in localport=5986 action=allow
+
+write-output "Restarting WinRM"
+write-host "(host) Restarting WinRM"
+
+net stop winrm
+sc.exe config winrm start=auto
+net start winrm
+
+write-output "Setting Powershell Execution Policy"
+write-host "(host) Setting Powershell Execution Policy"
+
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force
+
+write-output "Completed Executing User Data Script"
+write-host "(host) Completed Executing User Data Script"
+
+#installation of chocolatey package manager"
+iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+</powershell>

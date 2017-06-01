@@ -1,0 +1,17 @@
+<powershell>
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned –Scope LocalMachine -Force
+Configure-SMRemoting.exe –enable
+Enable-PSRemoting -force 
+netsh advfirewall set allprofiles state off
+cscript C:\Windows\System32\Scregedit.wsf /ar 0 
+(Get-WmiObject -class "Win32_TSGeneralSetting" -Namespace root\cimv2\terminalservices -Filter "TerminalName='RDP-tcp'").SetUserAuthenticationRequired(1)
+(Get-WmiObject -class "Win32_TSGeneralSetting" -Namespace root\cimv2\terminalservices -Filter "TerminalName='RDP-tcp'”).UserAuthenticationRequired 
+Get-Service SysMain,Spooler | Stop-service –PassThru | Set-Service –StartupType Disabled 
+Get-Service Themes | Stop-service –PassThru | Set-Service –StartupType Disabled 
+w32tm /config /manualpeerlist:time.suntrust.com /syncfromflags:MANUAL 
+get-windowsfeature | where installed | get-bpamodel -ea silentlycontinue | Invoke-BpaModel
+Install-WindowsFeature -Name FileAndStorage-Services,File-Services,FS-FileServer,FS-Data-Deduplication,FS-Resource-Manager,FS-VSS-Agent,RSAT-File-Services,RSAT-FSRM-Mgmt,RSAT-CoreFile-Mgmt,Windows-Server-Backup
+#Install-WindowsFeature -Name FileAndStorage-Services,File-Services,FS-FileServer,FS-Data-Deduplication,FS-Resource-Manager,FS-VSS-Agent,RSAT-File-Services,RSAT-FSRM-Mgmt,RSAT-CoreFile-Mgmt,Windows-Server-Backup
+Restart-Computer
+<powershell>
+
